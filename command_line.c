@@ -38,3 +38,13 @@ struct command_line *parse_input()
     return curr_command;
 }
 
+bool ignore_line(struct command_line* command_line)
+{
+    char* first_arg = command_line->argv[0];
+
+    if (first_arg == 0 || strncmp(first_arg, "#", 1) == 0) return true;
+
+    return false;
+
+}
+

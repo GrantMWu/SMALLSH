@@ -17,5 +17,18 @@ struct command_line
     bool is_bg;
 };
 
-struct command_line *parse_input();
+/**
+ * @brief Parses the input entered on the command line
+ *
+ * @return A command_line struct 
+ */
+struct command_line* parse_input();
 
+/**
+ * @brief Checks if a command is a comment or blank line
+ *
+ * @param A pointer to the command_line struct to check
+ *
+ * @return true if line should be ignored, false otherwise
+ */
+bool ignore_line(struct command_line* command_line);
