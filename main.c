@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "command_line.h"
+#include "execute.h"
 
 int main()
 {
@@ -9,9 +10,24 @@ int main()
     while(true)
     {
         curr_command = parse_input();
+
+        // check for comment or blank line
         if (ignore_line(curr_command)) continue;
 
-        printf("Do some stuff with the command line\n");
+        // check for built-in function
+        enum builtin_result result = builtin(curr_command);
+        if (result == BUILTIN_EXIT)
+        {
+            break;
+        }    
+        else if (result == BUILTIN_HANDLED)
+        {
+            continue;
+        }
+
+        // fork() and exec()
+        exec_other(curr_command);
+         
     }
 
     return EXIT_SUCCESS;
