@@ -9,6 +9,16 @@ int main()
     struct command_line *curr_command;
     while(true)
     {
+        // Check for completed background processes
+        pid_t child_pid;
+        int child_status;
+        while ((child_pid = waitpid(-1, &child_status, WNOHANG)) > 0) 
+        {
+            printf("background pid %d is done: ", child_pid);
+            show_status(child_status);
+        }
+
+        // parse command line
         curr_command = parse_input();
 
         // check for comment or blank line

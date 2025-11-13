@@ -22,7 +22,9 @@ enum builtin_result builtin(struct command_line* command_line);
 
 void change_directory(char** path_ptr);
 
+void show_status(int status);
+
 void exec_other(struct command_line* command_line);
 
-void redirect_io(char* input, char* output);
+void redirect_io(struct command_line* command_line);
 

@@ -20,20 +20,25 @@ enum builtin_result builtin(struct command_line* command_line)
     else if (strcmp(command, "status") == 0)
     {
         // show status
-        if (WIFEXITED(fg_status))
-        {
-            printf("exit value %d\n", WEXITSTATUS(fg_status));
-        }
-        else if (WIFSIGNALED(fg_status))
-        {
-            printf("terminated by signal %d\n", WTERMSIG(fg_status));
-        }
-        fflush(stdout);
+        show_status(fg_status);
         return BUILTIN_HANDLED;
     }
 
     return BUILTIN_NONE;
 }        
+
+void show_status(int status)
+{
+    if (WIFEXITED(status))
+    {
+        printf("exit value %d\n", WEXITSTATUS(status));
+    }
+    else if (WIFSIGNALED(status))
+    {
+        printf("terminated by signal %d\n", WTERMSIG(status));
+    }
+    fflush(stdout);
+}
 
 void change_directory(char** path_ptr)
 {
@@ -55,7 +60,7 @@ void exec_other(struct command_line* command_line)
         
         case 0:
             // redirect the input and output files if needed
-            redirect_io(command_line->input_file, command_line->output_file);
+            redirect_io(command_line);
 
             // execute command
             execvp(command_line->argv[0], command_line->argv); 
@@ -63,18 +68,35 @@ void exec_other(struct command_line* command_line)
             exit(EXIT_FAILURE);
 
         default:
-            waitpid(child_pid, &child_status, 0);
+            ;
+            int options = command_line->is_bg ? WNOHANG : 0;
+            waitpid(child_pid, &child_status, options);
             fg_status =  child_status;
             break;
     }
 }
 
-void redirect_io(char* input, char* output)
+void redirect_io(struct command_line* command_line)
 {
+    char* input = command_line->input_file;
+    char* output = command_line->output_file;
+    bool is_bg = command_line->is_bg;
+    int inFD = 0;
+    int outFD = 0;
+
     if (input) 
     {
         // open input file for read only
         int inFD = open(input, O_RDONLY);
+    }
+    else if (is_bg)
+    {
+        int inFD = open("/dev/null", O_RDONLY);
+        
+    }
+
+    if (inFD)
+    {
         if (inFD == -1)
         {
             perror("source open()");
@@ -90,10 +112,17 @@ void redirect_io(char* input, char* output)
         }
     }
 
-    if (output) 
+    if (output)
     {
-        // open output file for read only
         int outFD = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    }
+    else if (is_bg)
+    {
+        int outFD = open("/dev/null", O_WRONLY);
+    }
+
+    if (outFD) 
+    {
         if (outFD == -1)
         {
             perror("target open()");
