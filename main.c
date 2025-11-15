@@ -3,6 +3,7 @@
 
 #include "command_line.h"
 #include "execute.h"
+#include "signal.h"
 
 int main()
 {
@@ -17,6 +18,8 @@ int main()
             printf("background pid %d is done: ", child_pid);
             show_status(child_status);
         }
+
+        redirect_signals();
 
         // parse command line
         curr_command = parse_input();

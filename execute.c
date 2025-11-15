@@ -62,14 +62,17 @@ void exec_other(struct command_line* command_line)
         case 0:
             // redirect the input and output files if needed
             redirect_io(command_line);
-
+            if (!command_line->is_bg)
+            {
+                redirect_fg_child();
+            }
             // execute command
             execvp(command_line->argv[0], command_line->argv); 
             fprintf(stderr, "%s: %s\n", command_line->argv[0], strerror(errno));
             exit(EXIT_FAILURE);
 
         default:
-            redirect_signals();
+            ;
             int options = command_line->is_bg ? WNOHANG : 0;
             if (command_line->is_bg)
             {
@@ -78,6 +81,11 @@ void exec_other(struct command_line* command_line)
             }
             waitpid(child_pid, &child_status, options);
             fg_status =  child_status;
+            if (!command_line->is_bg)
+            {
+                show_status(fg_status);
+            }
+
             break;
     }
 }
