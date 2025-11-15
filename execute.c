@@ -1,4 +1,5 @@
 #include "execute.h"
+#include "signal.h"
 
 static int fg_status = 0;
 
@@ -68,8 +69,13 @@ void exec_other(struct command_line* command_line)
             exit(EXIT_FAILURE);
 
         default:
-            ;
+            redirect_signals();
             int options = command_line->is_bg ? WNOHANG : 0;
+            if (command_line->is_bg)
+            {
+                printf("background pid is %d\n", child_pid);
+                fflush(stdout); 
+            }
             waitpid(child_pid, &child_status, options);
             fg_status =  child_status;
             break;
