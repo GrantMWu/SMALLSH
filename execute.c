@@ -61,11 +61,8 @@ void exec_other(struct command_line* command_line)
         
         case 0:
             // redirect the input and output files if needed
-            //redirect_io(command_line);
-            if (!command_line->is_bg)
-            {
-                redirect_child(command_line->is_bg);
-            }
+            redirect_io(command_line);
+            redirect_child(command_line->is_bg);
             // execute command
             execvp(command_line->argv[0], command_line->argv); 
             fprintf(stderr, "%s: %s\n", command_line->argv[0], strerror(errno));
@@ -81,7 +78,9 @@ void exec_other(struct command_line* command_line)
             }
             waitpid(child_pid, &child_status, options);
             fg_status =  child_status;
-            if (!command_line->is_bg)
+
+            // print the status if fg child was terminated
+            if (!command_line->is_bg && WIFSIGNALED(child_status))
             {
                 show_status(fg_status);
             }

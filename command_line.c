@@ -9,7 +9,13 @@ struct command_line *parse_input()
     // Get input
     printf(": ");
     fflush(stdout);
-    fgets(input, INPUT_LENGTH, stdin);
+    char* result = fgets(input, INPUT_LENGTH, stdin);
+
+    if (result == NULL)
+    {
+        clearerr(stdin);  // Clear the error state
+        return curr_command;  // Return empty command (will be ignored)
+    }
     
     // Tokenize the input
     char *token = strtok(input, " \n");

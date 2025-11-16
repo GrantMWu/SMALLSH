@@ -1,11 +1,24 @@
 #include "signal.h"
 
+static bool tstp_recieved = 0;
+
 void handle_SIGTSTP(int signo)
 {
     char* message = "signal terminal stop\n";
     write(STDOUT_FILENO, message, 21);
+    fflush(stdout);
 }
 
+void check_tstp_message()
+{
+    if (tstp_recieved == 1)
+    {
+        tstp_recieved = 0;
+        char* message = "signal terminal stop\n";
+        write(STDOUT_FILENO, message, 21);
+        fflush(stdout);
+    }
+}
 void redirect_signals()
 {
     // handle sigint
