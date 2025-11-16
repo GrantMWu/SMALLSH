@@ -61,10 +61,10 @@ void exec_other(struct command_line* command_line)
         
         case 0:
             // redirect the input and output files if needed
-            redirect_io(command_line);
+            //redirect_io(command_line);
             if (!command_line->is_bg)
             {
-                redirect_fg_child();
+                redirect_child(command_line->is_bg);
             }
             // execute command
             execvp(command_line->argv[0], command_line->argv); 
@@ -101,11 +101,11 @@ void redirect_io(struct command_line* command_line)
     if (input) 
     {
         // open input file for read only
-        int inFD = open(input, O_RDONLY);
+        inFD = open(input, O_RDONLY);
     }
     else if (is_bg)
     {
-        int inFD = open("/dev/null", O_RDONLY);
+        inFD = open("/dev/null", O_RDONLY);
         
     }
 
@@ -124,15 +124,17 @@ void redirect_io(struct command_line* command_line)
             perror("source dup2()");
             exit(1);
         }
+
+        close(inFD);
     }
 
     if (output)
     {
-        int outFD = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        outFD = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     }
     else if (is_bg)
     {
-        int outFD = open("/dev/null", O_WRONLY);
+        outFD = open("/dev/null", O_WRONLY);
     }
 
     if (outFD) 
@@ -150,5 +152,6 @@ void redirect_io(struct command_line* command_line)
             perror("target dup2()");
             exit(1);
         }
+        close(outFD);
     }
 }
