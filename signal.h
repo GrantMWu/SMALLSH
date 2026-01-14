@@ -12,4 +12,5 @@ void handle_SIGTSTP(int signo);
 void redirect_signals();
 
 void redirect_child(bool is_bg);
-void check_tstp_message();
+
+bool fg_only();

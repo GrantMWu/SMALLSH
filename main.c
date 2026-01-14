@@ -8,16 +8,10 @@
 int main()
 {
     struct command_line *curr_command;
+    
     while(true)
     {
-        // Check for completed background processes
-        pid_t child_pid;
-        int child_status;
-        while ((child_pid = waitpid(-1, &child_status, WNOHANG)) > 0) 
-        {
-            printf("background pid %d is done: ", child_pid);
-            show_status(child_status);
-        }
+        reap_processes();
 
         redirect_signals();
 

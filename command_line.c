@@ -1,4 +1,5 @@
 #include "command_line.h"
+#include "signal.h"
 
 struct command_line *parse_input()
 {
@@ -31,7 +32,10 @@ struct command_line *parse_input()
         }
         else if(!strcmp(token,"&"))
         {
-            curr_command->is_bg = true;
+            if (!fg_only())
+            {
+                curr_command->is_bg = true;
+            }
         }
         else
         {

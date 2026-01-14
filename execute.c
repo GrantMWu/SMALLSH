@@ -89,6 +89,18 @@ void exec_other(struct command_line* command_line)
     }
 }
 
+void reap_processes()
+{
+    // Check for completed background processes
+    pid_t child_pid;
+    int child_status;
+    while ((child_pid = waitpid(-1, &child_status, WNOHANG)) > 0) 
+    {
+        printf("background pid %d is done: ", child_pid);
+        show_status(child_status);
+    }
+}
+
 void redirect_io(struct command_line* command_line)
 {
     char* input = command_line->input_file;
